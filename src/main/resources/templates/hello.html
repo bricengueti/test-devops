@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Zero to Deploy</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: #0f172a;
+            color: #f1f5f9;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        .badge {
+            padding: 0.4rem 1.2rem;
+            border-radius: 999px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .badge-test    { background: #1d4ed8; color: white; }
+        .badge-preprod { background: #d97706; color: white; }
+        .badge-prod    { background: #b91c1c; color: white; }
+    </style>
+</head>
+<body>
+<h1>Hello World 👋</h1>
+<span class="badge"
+      th:classappend="'badge-' + ${#strings.toLowerCase(environment)}"
+      th:text="${environment}">
+        ENVIRONNEMENT
+    </span>
+</body>
+</html>

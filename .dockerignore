@@ -1,0 +1,32 @@
+# Build Maven
+target/
+*.class
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# Git
+.git/
+.gitignore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env locaux (ne jamais copier des .env dans l'image)
+.env
+.env.*
+
+# Logs
+*.log
+logs/
+
+# Docker lui-meme
+Dockerfile
+docker-compose.yml
+.dockerignore

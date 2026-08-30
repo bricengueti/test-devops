@@ -1,0 +1,11 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
+    container_name: ${CONTAINER_NAME}
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT}
+    ports:
+      - "${HOST_PORT}:8090"
