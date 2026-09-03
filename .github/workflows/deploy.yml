@@ -197,3 +197,8 @@ jobs:
           echo "| 5. Deploiement | ${{ needs.deploy.result }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "Branche : ${{ github.ref_name }} | Declencheur : ${{ github.event_name }}" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "${{ needs.deploy.result }}" = "success" ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "**Application deployee :** [http://${{ secrets.VPS_HOST }}:${{ vars.HOST_PORT }}](http://${{ secrets.VPS_HOST }}:${{ vars.HOST_PORT }})" >> "$GITHUB_STEP_SUMMARY"
+          fi
