@@ -8,45 +8,14 @@ on:
       - prod
   pull_request:
     branches:
+      - main        # ou master, ou toutes les branches cibles de tes MR
       - test
       - preprod
       - prod
+    types: [opened, synchronize, reopened]
 
 jobs:
-  sonar-analysis:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout du code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Configuration JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: maven
-
-      - name: Build & Test
-        run: ./mvnw verify -B
-
-      - name: Analyse SonarCloud
-        uses: sonarsource/sonarcloud-github-action@v2
-        with:
-          args: >
-            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
-            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      - name: Quality Gate
-        uses: sonarsource/sonarqube-quality-gate-action@v1
-        with:
-          sonar_token: ${{ secrets.SONAR_TOKEN }}
-
   build-test-analyze:
-    needs: sonar-analysis
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name }}
     steps:
@@ -54,22 +23,49 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Configuration JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+
       - name: Rendre mvnw executable
         run: chmod +x mvnw
+
       - name: Lancer les tests unitaires
         run: ./mvnw test -B
+
+      - name: Analyse SonarCloud
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SONAR_OPTS="-Dsonar.organization=${{ vars.SONAR_ORGANIZATION }} \
+                      -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }} \
+                      -Dsonar.host.url=https://sonarcloud.io"
+
+          # Si c'est une pull request, on ajoute les paramètres PR pour SonarCloud
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            SONAR_OPTS="$SONAR_OPTS \
+              -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
+              -Dsonar.pullrequest.branch=${{ github.head_ref }} \
+              -Dsonar.pullrequest.base=${{ github.base_ref }} \
+              -Dsonar.qualitygate.wait=true"
+          fi
+
+          ./mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -B $SONAR_OPTS
+
       - name: Connexion a Docker Hub
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Build et push de l'image Docker
+        if: github.event_name != 'pull_request'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -78,6 +74,7 @@ jobs:
 
   deploy:
     needs: build-test-analyze
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name }}
     concurrency:
@@ -86,6 +83,7 @@ jobs:
     steps:
       - name: Checkout du code
         uses: actions/checkout@v4
+
       - name: Copier docker-compose.yml sur le VPS
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -94,6 +92,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "docker-compose.yml"
           target: "/home/cicd/zero-to-deploy/${{ github.ref_name }}"
+
       - name: Deployer sur le VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -113,6 +112,7 @@ jobs:
             docker pull ${{ vars.IMAGE_NAME }}:${{ vars.IMAGE_TAG }}
             docker compose --env-file .env up -d --remove-orphans
             docker images "${{ vars.IMAGE_NAME }}" -q --filter "dangling=true" | xargs -r docker rmi
+
       - name: Verification du deploiement (healthcheck)
         run: |
           for i in $(seq 1 20); do
