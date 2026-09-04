@@ -5,41 +5,38 @@
     <title>Zero to Deploy</title>
     <style>
         body {
-            font-family: -apple-system, sans-serif;
+            font-family: system-ui, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
-            color: #222;
+            background: #0f172a;
+            color: #f1f5f9;
         }
         h1 {
-            font-size: 1.8rem;
-            font-weight: 500;
+            font-size: 3rem;
             margin-bottom: 0.5rem;
         }
-        .env {
-            font-size: 0.95rem;
-            color: #666;
+        .badge {
+            padding: 0.4rem 1.2rem;
+            border-radius: 999px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
-        .dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 6px;
-        }
-        .dot-test    { background: #2563eb; }
-        .dot-preprod { background: #d97706; }
-        .dot-prod    { background: #dc2626; }
+        .badge-test    { background: #1d4ed8; color: white; }
+        .badge-preprod { background: #d97706; color: white; }
+        .badge-prod    { background: #b91c1c; color: white; }
     </style>
 </head>
 <body>
-<h1>Hello World</h1>
-<p class="env">
-    <span class="dot" th:classappend="'dot-' + ${#strings.toLowerCase(environment)}"></span>
-    <span th:text="${environment}">environnement</span>
-</p>
+<h1>Hello World 👋</h1>
+<span class="badge"
+      th:classappend="'badge-' + ${#strings.toLowerCase(environment)}"
+      th:text="${environment}">
+        ENVIRONNEMENT
+    </span>
 </body>
 </html>
