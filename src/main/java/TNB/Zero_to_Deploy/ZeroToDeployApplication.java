@@ -8,5 +8,4 @@ public class ZeroToDeployApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ZeroToDeployApplication.class, args);
 	}
-
 }
