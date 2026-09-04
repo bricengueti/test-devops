@@ -15,7 +15,7 @@ class ZeroToDeployApplicationProfileTest {
     private String environment;
 
     @Test
-    void le_profil_prod_devrait_charger_app_environment_prod() {
+    void appEnvironment_shouldResolveToProd_whenProdProfileIsActive() {
         assertThat(environment).isEqualTo("PROD");
     }
 }

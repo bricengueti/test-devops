@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class HomeControllerTest {
 
     @Test
-    void devrait_retourner_la_vue_hello() {
+    void hello_shouldReturnHelloView() {
         HomeController controller = new HomeController("TEST");
         Model model = new ExtendedModelMap();
 
@@ -19,7 +19,7 @@ class HomeControllerTest {
     }
 
     @Test
-    void devrait_ajouter_environment_au_model() {
+    void hello_shouldAddEnvironmentAttributeToModel() {
         HomeController controller = new HomeController("PROD");
         Model model = new ExtendedModelMap();
 

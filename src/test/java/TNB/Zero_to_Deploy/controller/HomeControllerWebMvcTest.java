@@ -17,7 +17,7 @@ class HomeControllerWebMvcTest {
     private MockMvc mockMvc;
 
     @Test
-    void devrait_afficher_la_page_avec_environnement_preprod() throws Exception {
+    void getRoot_shouldRenderHelloViewWithPreprodEnvironment() throws Exception {
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("hello"))
